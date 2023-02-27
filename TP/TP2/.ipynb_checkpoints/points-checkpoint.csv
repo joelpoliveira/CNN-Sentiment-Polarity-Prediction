@@ -1,0 +1,13 @@
+﻿x;y;type
+1;1;stars
+1;1,5;stars
+1;2;stars
+1;2,5;stars
+1,5;2;stars
+2;2,5;stars
+1;0;circles
+2;0,3;circles
+2,5;0,5;circles
+2,7;0,7;circles
+3;1,5;circles
+2,8;2;circles
