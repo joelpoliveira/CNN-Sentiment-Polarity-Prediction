@@ -1,0 +1,7 @@
+https://keras.io/examples/nlp/pretrained_word_embeddings/
+https://blog.keras.io/using-pre-trained-word-embeddings-in-a-keras-model.html
+https://www.youtube.com/watch?v=Qsmn9pL5kcU&t=1018s
+https://nlp.stanford.edu/projects/glove/
+https://github.com/yoonkim/CNN_sentence/blob/master/process_data.py#L88
+https://groups.google.com/g/word2vec-toolkit/c/J3Skqbe3VwQ
+http://vectors.nlpl.eu/repository/
