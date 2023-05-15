@@ -5,3 +5,5 @@ https://nlp.stanford.edu/projects/glove/
 https://github.com/yoonkim/CNN_sentence/blob/master/process_data.py#L88
 https://groups.google.com/g/word2vec-toolkit/c/J3Skqbe3VwQ
 http://vectors.nlpl.eu/repository/
+https://www.kaggle.com/datasets/nikosfragkis/imdb-320000-movie-reviews-sentiment-analysis
+https://www.kaggle.com/datasets/pawankumargunjan/imdb-review
