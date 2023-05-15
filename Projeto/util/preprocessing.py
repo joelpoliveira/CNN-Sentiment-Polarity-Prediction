@@ -1,10 +1,11 @@
 import string
 import nltk
 import numpy as np
-from tqdm import tqdm
+from tqdm.notebook import tqdm
 from typing import NewType, Sequence
 from deep_translator import GoogleTranslator
 from googletrans import Translator
+from multiprocessing.pool import ThreadPool as Pool
 
 Word = NewType("Word", str)
 WordIndex = NewType("WordIndex", int)
@@ -17,28 +18,36 @@ Paragraph = NewType("Paragraph", list[Sentence])
 Document = NewType("Document", list[Paragraph])
 Vocabulary = NewType("Vocabulary", dict[Word, int])
 TRANSLATOR = Translator()
-
+    
 def __translate(sentence: Sentence) -> Sentence:
-        return TRANSLATOR.translate(sentence).text
+    return TRANSLATOR.translate(sentence).text
 
+        
+    
 def translate_to_english(documents: list[Document]):
     translated = []
-    for doc in tqdm(documents):
+    for doc in documents:
         translated.append(__translate(doc))
     return translated
 
+
 def batch_translate_to_english(documents: list[Document], batch_size=10):
     translated = []
-    for i in tqdm(range(0, len(documents), batch_size)):
-        batch = ''.join(documents[i:i+batch_size])
+    for i in range(0, len(documents), batch_size):
+        batch = '\n'.join(documents[i:i+batch_size])
         translation = __translate(batch)
         translated.extend(
             list(map(lambda sentence: sentence+" \n", translation.split("\n")))
         )
     return translated
 
+
 def __remove_punctuation(sentence: Sentence)->Sentence:
-    return sentence.translate(str.maketrans('', '', string.punctuation))
+    n = len(string.punctuation)
+    punct_trans = dict(
+        zip(string.punctuation, [' ']*n)
+    )
+    return sentence.translate(str.maketrans(punct_trans))
 
 def __get_words(sentence: Sentence) -> Sequence[Word]:
     """
@@ -53,45 +62,11 @@ def __get_words(sentence: Sentence) -> Sequence[Word]:
         and (len(word) > 1):
             yield word 
 
-            
-def process_documents(documents: list[Document], classes: list=None) -> dict:
-    """
-    Given a list of paragraphs, iterates over it's sentences. 
-    Every time a new word is found, it is added to the dictionary of words with a unique integer reference.
-    """
-    if classes!=None:
-        assert(len(classes)==len(documents))
-    all_words = {}
-    sentences = []
-    sentence_classes = []
-    i=1; c=0
+
+def process_documents(documents: list[Document], return_vocab=True):       
+    if return_vocab:
+        all_words = {}
     
-    for doc in tqdm(documents):
-        for sentence in nltk.sent_tokenize(doc):
-            current_sentence = []
-            #sentence = __translate(sentence)
-            sentence = __remove_punctuation(sentence)
-            
-            if classes!=None:
-                sentence_classes.append(classes[c])
-                
-            for word in __get_words(sentence):
-                
-                if word not in all_words:
-                    all_words[ word ] = i
-                    i+=1
-                current_sentence.append(word)
-                
-            sentences.append(current_sentence)
-        c+=1
-    if classes!=None:
-        return all_words, sentences, sentence_classes
-    return all_words, sentences
-
-
-
-def process_documents_to_documents(documents: list[Document]):        
-    all_words = {}
     new_docs = []
     i=1
     
@@ -101,17 +76,17 @@ def process_documents_to_documents(documents: list[Document]):
             sentence = __remove_punctuation(sentence)
         
             for word in __get_words(sentence):
-                
-                if word not in all_words:
-                    all_words[ word ] = i
-                    i+=1
+                if return_vocab:
+                    if word not in all_words:
+                        all_words[ word ] = i
+                        i+=1
                     
                 current_doc.append(word)
-                
         new_docs.append(current_doc)
-
-    return all_words, new_docs
-
+    
+    if return_vocab:
+        return all_words, new_docs
+    return new_docs
 
 
 def process_sentences(sentences: list[Sentence]) -> dict:
@@ -151,6 +126,18 @@ def add_unknown_words(words, word2vec, dev=.25, k=300):
     word2vec.add_vectors(words, vecs)
 
 
+def map_to_index(documents: list, vocab: Vocabulary, UNKOWN_TOKEN: Word = "[UNK]") -> list[IndexSentence]:
+    index_docs = documents.copy()
+    for i, doc in tqdm(enumerate(documents)):
+        for j, word in enumerate(doc):
+            if word in vocab:
+                index_docs[i][j] = vocab[word]
+            else:
+                index_docs[i][j] = vocab[UNKOWN_TOKEN]
+                
+    return index_docs
+    
+    
 def map_sentences(sentences: list[Sentence], vocab: Vocabulary, UNKOWN_TOKEN: Word = "[UNK]") -> list[Sentence]:
     """
     Given a list of sentences, iterates over it. 
@@ -202,6 +189,7 @@ def map_documents(documents: list[Document], vocab: Vocabulary, UNKOWN_TOKEN: Wo
 
 
 def get_max_sequence_length(sentences: IndexSentence) -> int:
+    """Returns the """
     return max(
         [len(s) for s in sentences]
     )
