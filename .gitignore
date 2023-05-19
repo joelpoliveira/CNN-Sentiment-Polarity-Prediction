@@ -1,4 +1,9 @@
 .ipynb_checkpoints
-data
 flower_photos
 __pycache__
+*.jpg
+*.pickle
+*.h5
+*.pdf
+*.pb
+*.index
