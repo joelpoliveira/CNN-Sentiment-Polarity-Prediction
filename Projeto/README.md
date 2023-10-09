@@ -10,7 +10,4 @@ It contains "main_A" and "main_B" code files, that have the same structure but a
 
 In order to access the difficulties the model had in some of the instances, **LIME** was used. It could be perceived that the model assigned correctly words that are used for negative polarity in general, but it didn't cope with negations, for example "nothing wrong with the movie".
 
----
-
-The datasets can be obtained in the following 
 
